@@ -1,33 +1,20 @@
-const { cmd } = require('../command');
-const config = require('../config');
-const { getBuffer, runtime } = require('../lib/functions');
-const moment = require('moment-timezone');
+const {readEnv} = require('../lib/database')
+const {cmd , commands} = require('../command')
 
 cmd({
-  pattern: "alive",
-  desc: "Show bot is alive",
-  category: "main",
-  filename: __filename
-}, async (m, text, { robin }) => {
-  const aliveImg = 'https://files.catbox.moe/nj9z4m.jpg';
+    pattern: "alive",
+    desc: "Check bot online or no.",
+    category: "main",
+    filename: __filename
+},
+async(robin, mek, m,{from, quoted, body, isCmd, command, args, q, isGroup, sender, senderNumber, botNumber2, botNumber, pushname, isMe, isOwner, groupMetadata, groupName, participants, groupAdmins, isBotAdmins, isAdmins, reply}) => {
+try{
+const config = await readEnv();
+return await robin.sendMessage(from,{image: {url: config.ALIVE_IMG},caption: config.ALIVE_MSG},{quoted: mek})
+    
+}catch(e){
+console.log(e)
+reply(`${e}`)
+}
+})
 
-  // Set timezone and format
-  const now = moment().tz("Asia/Colombo"); // Or change to your preferred timezone
-  const formattedTime = now.format("DD/MM/YYYY, h:mm:ss a");
-
-  const aliveMsg = `
-╭━〔 *🤖 LOVELY-MD ELISHA ALIVE* 〕━◉
-│ 👑 *Owner:* ${config.OWNER_NUMBER}
-│ ⚙️ *Mode:* public
-│ ⏰ *Uptime:* ${runtime(process.uptime())}
-│ 📅 *Date:* ${formattedTime}
-╰━━━━━━━━━━━━━━━◉
-  `.trim();
-
-  const buffer = await getBuffer(aliveImg);
-
-  return robin.sendMessage(m.chat, {
-    image: buffer,
-    caption: aliveMsg
-  }, { quoted: m });
-});
